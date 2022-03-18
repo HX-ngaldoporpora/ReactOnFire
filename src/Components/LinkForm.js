@@ -1,4 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import db from "../firebase";
+import {
+    getDoc,
+    doc
+ } from "firebase/firestore";
+
 
 const LinkForm = (props) => {
   const initialStateValues = {
@@ -23,6 +29,19 @@ const LinkForm = (props) => {
     setValues({...initialStateValues})
   };
 
+  const getLinkById = async(id) => {
+const docEdit = await getDoc(doc(db, "links", id));
+    setValues({...docEdit.data()})
+  }
+
+  useEffect(()=>{
+      //primero se chequea si no hay id para establecer los valores en cero y crearlo, caso contrario seteamos en para editar
+if (props.currentId === ""){
+    setValues({...initialStateValues})
+} else {
+   getLinkById(props.currentId)
+}
+  }, [props.currentId])
 
   return (
     <form className="card card-body" onSubmit={handleSubmit}>
@@ -65,7 +84,8 @@ const LinkForm = (props) => {
         />
       </div>
 
-      <button className="btn btn-success btn-block py-2">Save</button>
+      <button className="btn btn-success btn-block py-2">
+          {props.currentId === "" ? "Save" : "Edit"} </button>
     </form>
   );
 };
